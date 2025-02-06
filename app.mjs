@@ -27,6 +27,9 @@ app.use(
 );
 
 // Routes
+app.get("/beep", (req, res) => {
+  res.json("beeping...");
+});
 app.use("/api/test", (req, res) => {
   res.json("working").status(200);
 });

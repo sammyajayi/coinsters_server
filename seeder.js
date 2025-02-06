@@ -1,21 +1,23 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { User } from "./models/User";
-import { Project } from "./models/Project";
-import { icoData } from "./data";
+import { User } from "./models/User.js";
+import { Project } from "./models/Project.js";
+import { icoData } from "./data.js";
+import connectDB from "./config/db.js";
+import bcrypt from "bcryptjs";
 
 dotenv.config();
 connectDB();
 const users = [
   {
     email: "coinsters.web3@gmail.com",
-    password: "Explore@96",
+    password: bcrypt.hashSync("Explore@96", 12),
     name: "Coinsters",
     role: "admin",
   },
   {
     email: "sammyajayi96@gmail.com",
-    password: "Explore@96",
+    password: bcrypt.hashSync("Explore@96", 12),
     name: "sammy_ajayi",
     role: "admin",
   },
@@ -29,17 +31,20 @@ const importData = async () => {
     const createdUsers = await User.insertMany(users);
     const creator = createdUsers[0]._id;
     const prepProjects = icoData.projects.map((project) => {
-      return { ...product, user: creator };
+      return { ...project, user: creator };
     });
 
-    // const sampleCategory = categories.map((category) => {
-    //   return { ...category, user: adminUser };
-    // });
+    console.log(prepProjects);
 
-    await Project.insertMany(prepProjects);
-    // await Category.insertMany(sampleCategory);
+    const newPro = await Project.insertMany(prepProjects);
+    if (newPro) {
+      console.log("succes");
+    } else {
+      console.log("error inserting projects");
+    }
     process.exit();
   } catch (error) {
+    console.log(error);
     process.exit(1);
   }
 };
@@ -47,14 +52,14 @@ const importData = async () => {
 const destroyData = async () => {
   try {
     // await Order.deleteMany();
-    // await Product.deleteMany();
-    // await User.deleteMany();
-    await Category.deleteMany();
+    await Project.deleteMany();
+    await User.deleteMany();
+    // await Category.deleteMany();
 
-    console.log("Data Destroyed!".red.inverse);
+    console.log("Data Destroyed!");
     process.exit();
   } catch (error) {
-    console.error(`${error}`.red.inverse);
+    console.error(`${error}`);
     process.exit(1);
   }
 };
